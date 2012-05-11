@@ -1,4 +1,1 @@
-This is an old sample using dart:dom. It probably doesn't
-compile with today's frog and libraries. However, it's a
-reference for when we get dart:html working with web
-audio api.
+A simple dart:html Web Audio API example.
