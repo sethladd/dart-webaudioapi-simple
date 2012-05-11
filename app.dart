@@ -1,30 +1,32 @@
-#import('dart:dom', prefix:'dom');
 #import('dart:html');
 
 main() {
 
-  dom.AudioContext audioContext = new dom.AudioContext();
-  dom.AudioBufferSourceNode source = audioContext.createBufferSource();
-  dom.AudioGainNode gainNode = audioContext.createGainNode();
+  AudioContext audioContext = new AudioContext();
 
-  source.connect(gainNode, 0, 0);
-  gainNode.connect(audioContext.destination, 0, 0);
-
-  dom.XMLHttpRequest xhr = new dom.XMLHttpRequest();
-  xhr.open("GET", "techno.mp3", true);
+  XMLHttpRequest xhr = new XMLHttpRequest();
+  xhr.open("GET", "button-3.mp3", true);
   xhr.responseType = "arraybuffer";
-  xhr.addEventListener('load', (e) {
+  xhr.on.load.add((e) {
 
     // asynchronous decoding
-    audioContext.decodeAudioData(xhr.response, function(buffer) {
-      source.buffer = buffer;
+    audioContext.decodeAudioData(xhr.response, (buffer) {
+      
+      playSound() {
+        AudioGainNode gainNode = audioContext.createGainNode();
+        AudioBufferSourceNode source = audioContext.createBufferSource();
+        source.connect(gainNode, 0, 0);
+        gainNode.connect(audioContext.destination, 0, 0);
+        source.buffer = buffer;
+        source.noteOn(0);
+      }
     
       var button = document.query("#play");
       button.disabled = false;
-      button.on.click.add((e) {
-        source.noteOn(0);
+      button.on.click.add((_) {
+        playSound();
       });
-    }, function() {
+    }, (error) {
       print('Error decoding MP3 file');
     });
     
@@ -32,11 +34,11 @@ main() {
   
   xhr.send();
   
-  document.query("#volume").on.change.add((e) {
-    var volume = Math.parseInt(e.target.value);
-    var max = Math.parseInt(e.target.max);
-    var fraction = volume / max;
-    gainNode.gain.value = fraction * fraction;
-  });
+//  document.query("#volume").on.change.add((e) {
+//    var volume = Math.parseInt(e.target.value);
+//    var max = Math.parseInt(e.target.max);
+//    var fraction = volume / max;
+//    gainNode.gain.value = fraction * fraction;
+//  });
 
 }
