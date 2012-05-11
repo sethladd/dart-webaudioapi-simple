@@ -62,6 +62,19 @@ function $add$(x, y) {
   if (typeof(x) == 'number' && typeof(y) == 'number') return x + y;
   return $add$complex$(x, y);
 }
+function $div$complex$(x, y) {
+  if (typeof(x) == 'number') {
+    $throw(new IllegalArgumentException(y));
+  } else if (typeof(x) == 'object') {
+    return x.$div(y);
+  } else {
+    $throw(new NoSuchMethodException(x, "operator /", [y]));
+  }
+}
+function $div$(x, y) {
+  if (typeof(x) == 'number' && typeof(y) == 'number') return x / y;
+  return $div$complex$(x, y);
+}
 function $eq$(x, y) {
   if (x == null) return y == null;
   return (typeof(x) != 'object') ? x === y : x.$eq(y);
@@ -70,6 +83,19 @@ function $eq$(x, y) {
 $defProp(Object.prototype, '$eq', function(other) {
   return this === other;
 });
+function $mul$complex$(x, y) {
+  if (typeof(x) == 'number') {
+    $throw(new IllegalArgumentException(y));
+  } else if (typeof(x) == 'object') {
+    return x.$mul(y);
+  } else {
+    $throw(new NoSuchMethodException(x, "operator *", [y]));
+  }
+}
+function $mul$(x, y) {
+  if (typeof(x) == 'number' && typeof(y) == 'number') return x * y;
+  return $mul$complex$(x, y);
+}
 function $ne$(x, y) {
   if (x == null) return y != null;
   return (typeof(x) != 'object') ? x !== y : !x.$eq(y);
@@ -343,6 +369,12 @@ function StackOverflowException() {
 StackOverflowException.prototype.toString = function() {
   return "Stack Overflow";
 }
+function BadNumberFormatException(_s) {
+  this._s = _s;
+}
+BadNumberFormatException.prototype.toString = function() {
+  return ("BadNumberFormatException: '" + this._s + "'");
+}
 function NullPointerException(functionName, arguments) {
   this.functionName = functionName;
   this.arguments = arguments;
@@ -410,6 +442,14 @@ Function.prototype.call$2 = function($0, $1) {
   return this.to$call$2()($0, $1);
 };
 function to$call$2(f) { return f && f.to$call$2(); }
+Math.parseInt = function(str) {
+    var match = /^\s*[+-]?(?:(0[xX][abcdefABCDEF0-9]+)|\d+)\s*$/.exec(str);
+    if (!match) $throw(new BadNumberFormatException(str));
+    var isHex = !!match[1];
+    var ret = parseInt(str, isHex ? 16 : 10);
+    if (isNaN(ret)) $throw(new BadNumberFormatException(str));
+    return ret;
+}
 function Strings() {}
 Strings.join = function(strings, separator) {
   return StringBase.join(strings, separator);
@@ -1153,9 +1193,12 @@ function _AbstractWorkerEventsImpl(_ptr) {
   _EventsImpl.call(this, _ptr);
 }
 $dynamic("get$name").HTMLAnchorElement = function() { return this.name; };
+$dynamic("get$target").HTMLAnchorElement = function() { return this.target; };
 $dynamic("get$name").WebKitAnimation = function() { return this.name; };
+$dynamic("get$target").Event = function() { return this.target; };
 $dynamic("get$length").WebKitAnimationList = function() { return this.length; };
 $dynamic("get$name").HTMLAppletElement = function() { return this.name; };
+$dynamic("get$target").HTMLAreaElement = function() { return this.target; };
 $dynamic("get$name").Attr = function() { return this.name; };
 $dynamic("get$value").Attr = function() { return this.value; };
 $dynamic("get$length").AudioBuffer = function() { return this.length; };
@@ -1171,6 +1214,7 @@ $dynamic("get$on").HTMLMediaElement = function() {
 }
 $dynamic("get$name").AudioParam = function() { return this.name; };
 $dynamic("get$value").AudioParam = function() { return this.value; };
+$dynamic("get$target").HTMLBaseElement = function() { return this.target; };
 $dynamic("get$on").BatteryManager = function() {
   return new _BatteryManagerEventsImpl(this);
 }
@@ -1187,6 +1231,9 @@ $dynamic("get$on").HTMLBodyElement = function() {
 $inherits(_ElementEventsImpl, _EventsImpl);
 function _ElementEventsImpl(_ptr) {
   _EventsImpl.call(this, _ptr);
+}
+_ElementEventsImpl.prototype.get$change = function() {
+  return this._get("change");
 }
 _ElementEventsImpl.prototype.get$click = function() {
   return this._get("click");
@@ -1316,6 +1363,9 @@ $dynamic("$dom_querySelector").HTMLDocument = function(selectors) {
 $inherits(_DocumentEventsImpl, _ElementEventsImpl);
 function _DocumentEventsImpl(_ptr) {
   _ElementEventsImpl.call(this, _ptr);
+}
+_DocumentEventsImpl.prototype.get$change = function() {
+  return this._get("change");
 }
 _DocumentEventsImpl.prototype.get$click = function() {
   return this._get("click");
@@ -1831,6 +1881,7 @@ $dynamic("forEach$1").Float64Array = function($0) {
 };
 $dynamic("get$length").HTMLFormElement = function() { return this.length; };
 $dynamic("get$name").HTMLFormElement = function() { return this.name; };
+$dynamic("get$target").HTMLFormElement = function() { return this.target; };
 $dynamic("get$name").HTMLFrameElement = function() { return this.name; };
 $dynamic("get$on").HTMLFrameSetElement = function() {
   return new _FrameSetElementEventsImpl(this);
@@ -1937,6 +1988,7 @@ $dynamic("get$on").HTMLInputElement = function() {
   return new _InputElementEventsImpl(this);
 }
 $dynamic("set$disabled").HTMLInputElement = function(value) { return this.disabled = value; };
+$dynamic("get$max").HTMLInputElement = function() { return this.max; };
 $dynamic("get$name").HTMLInputElement = function() { return this.name; };
 $dynamic("get$value").HTMLInputElement = function() { return this.value; };
 $inherits(_InputElementEventsImpl, _ElementEventsImpl);
@@ -2065,6 +2117,7 @@ $dynamic("set$disabled").HTMLKeygenElement = function(value) { return this.disab
 $dynamic("get$name").HTMLKeygenElement = function() { return this.name; };
 $dynamic("get$value").HTMLLIElement = function() { return this.value; };
 $dynamic("set$disabled").HTMLLinkElement = function(value) { return this.disabled = value; };
+$dynamic("get$target").HTMLLinkElement = function() { return this.target; };
 $dynamic("get$on").MediaStream = function() {
   return new _MediaStreamEventsImpl(this);
 }
@@ -2132,7 +2185,9 @@ function _MessagePortEventsImpl(_ptr) {
   _EventsImpl.call(this, _ptr);
 }
 $dynamic("get$name").HTMLMetaElement = function() { return this.name; };
+$dynamic("get$max").HTMLMeterElement = function() { return this.max; };
 $dynamic("get$value").HTMLMeterElement = function() { return this.value; };
+$dynamic("get$target").MutationRecord = function() { return this.target; };
 $dynamic("is$List").NamedNodeMap = function(){return true};
 $dynamic("is$Collection").NamedNodeMap = function(){return true};
 $dynamic("get$length").NamedNodeMap = function() { return this.length; };
@@ -2300,9 +2355,12 @@ $inherits(_PeerConnection00EventsImpl, _EventsImpl);
 function _PeerConnection00EventsImpl(_ptr) {
   _EventsImpl.call(this, _ptr);
 }
+$dynamic("get$target").ProcessingInstruction = function() { return this.target; };
+$dynamic("get$max").HTMLProgressElement = function() { return this.max; };
 $dynamic("get$value").HTMLProgressElement = function() { return this.value; };
 $dynamic("get$name").RangeException = function() { return this.name; };
 $dynamic("get$length").SQLResultSetRowList = function() { return this.length; };
+$dynamic("get$target").SVGAElement = function() { return this.target; };
 $dynamic("get$value").SVGAngle = function() { return this.value; };
 $inherits(_AttributeClassSet, _CssClassSet);
 function _AttributeClassSet() {}
@@ -2315,6 +2373,9 @@ $dynamic("get$on").SVGElementInstance = function() {
 $inherits(_SVGElementInstanceEventsImpl, _EventsImpl);
 function _SVGElementInstanceEventsImpl(_ptr) {
   _EventsImpl.call(this, _ptr);
+}
+_SVGElementInstanceEventsImpl.prototype.get$change = function() {
+  return this._get("change");
 }
 _SVGElementInstanceEventsImpl.prototype.get$click = function() {
   return this._get("click");
@@ -2447,6 +2508,7 @@ function _TextTrackListEventsImpl(_ptr) {
   _EventsImpl.call(this, _ptr);
 }
 $dynamic("get$length").TimeRanges = function() { return this.length; };
+$dynamic("get$target").Touch = function() { return this.target; };
 $dynamic("is$List").TouchList = function(){return true};
 $dynamic("is$Collection").TouchList = function(){return true};
 $dynamic("get$length").TouchList = function() { return this.length; };
@@ -2613,6 +2675,9 @@ $dynamic("$dom_addEventListener$3").DOMWindow = function($0, $1, $2) {
 $inherits(_WindowEventsImpl, _EventsImpl);
 function _WindowEventsImpl(_ptr) {
   _EventsImpl.call(this, _ptr);
+}
+_WindowEventsImpl.prototype.get$change = function() {
+  return this._get("change");
 }
 _WindowEventsImpl.prototype.get$click = function() {
   return this._get("click");
@@ -2798,13 +2863,13 @@ var _pendingRequests;
 var _pendingMeasurementFrameCallbacks;
 function main() {
   var audioContext = _AudioContextFactoryProvider.AudioContext$factory();
+  var gainNode = audioContext.createGainNode();
   var xhr = _XMLHttpRequestFactoryProvider.XMLHttpRequest$factory();
   xhr.open("GET", "button-3.mp3", true);
   xhr.responseType = "arraybuffer";
   xhr.get$on().get$load().add($wrap_call$1((function (e) {
     audioContext.decodeAudioData(xhr.response, $wrap_call$1((function (buffer) {
       function playSound() {
-        var gainNode = audioContext.createGainNode();
         var source = audioContext.createBufferSource();
         source.connect(gainNode, (0), (0));
         gainNode.connect(audioContext.destination, (0), (0));
@@ -2825,6 +2890,13 @@ function main() {
   })
   ), false);
   xhr.send();
+  get$$document().query("#volume").get$on().get$change().add($wrap_call$1((function (e) {
+    var volume = Math.parseInt(e.get$target().get$value());
+    var max = Math.parseInt(e.get$target().get$max());
+    var fraction = $div$(volume, max);
+    gainNode.gain.value = $mul$(fraction, fraction);
+  })
+  ), false);
 }
 (function(){
   var v0/*HTMLMediaElement*/ = 'HTMLMediaElement|HTMLAudioElement|HTMLVideoElement';
@@ -2849,6 +2921,7 @@ function main() {
     , ['Element', v4/*Element*/]
     , ['Entry', 'Entry|DirectoryEntry|FileEntry']
     , ['EntrySync', 'EntrySync|DirectoryEntrySync|FileEntrySync']
+    , ['Event', 'Event|WebKitAnimationEvent|AudioProcessingEvent|BeforeLoadEvent|CloseEvent|CustomEvent|DeviceMotionEvent|DeviceOrientationEvent|ErrorEvent|HashChangeEvent|IDBVersionChangeEvent|MediaKeyEvent|MediaStreamEvent|MessageEvent|MutationEvent|OfflineAudioCompletionEvent|OverflowEvent|PageTransitionEvent|PopStateEvent|ProgressEvent|XMLHttpRequestProgressEvent|SpeechInputEvent|SpeechRecognitionEvent|StorageEvent|TrackEvent|WebKitTransitionEvent|UIEvent|CompositionEvent|KeyboardEvent|MouseEvent|SVGZoomEvent|TextEvent|TouchEvent|WheelEvent|WebGLContextEvent']
     , ['IDBRequest', v6/*IDBRequest*/]
     , ['MediaStream', v7/*MediaStream*/]
     , ['Node', v8/*Node*/]

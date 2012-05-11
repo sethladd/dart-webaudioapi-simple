@@ -3,6 +3,7 @@
 main() {
 
   AudioContext audioContext = new AudioContext();
+  AudioGainNode gainNode = audioContext.createGainNode();
 
   XMLHttpRequest xhr = new XMLHttpRequest();
   xhr.open("GET", "button-3.mp3", true);
@@ -13,7 +14,6 @@ main() {
     audioContext.decodeAudioData(xhr.response, (buffer) {
       
       playSound() {
-        AudioGainNode gainNode = audioContext.createGainNode();
         AudioBufferSourceNode source = audioContext.createBufferSource();
         source.connect(gainNode, 0, 0);
         gainNode.connect(audioContext.destination, 0, 0);
@@ -34,11 +34,11 @@ main() {
   
   xhr.send();
   
-//  document.query("#volume").on.change.add((e) {
-//    var volume = Math.parseInt(e.target.value);
-//    var max = Math.parseInt(e.target.max);
-//    var fraction = volume / max;
-//    gainNode.gain.value = fraction * fraction;
-//  });
+  document.query("#volume").on.change.add((e) {
+    var volume = Math.parseInt(e.target.value);
+    var max = Math.parseInt(e.target.max);
+    var fraction = volume / max;
+    gainNode.gain.value = fraction * fraction;
+  });
 
 }
