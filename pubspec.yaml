@@ -1,0 +1,10 @@
+name: 'dart_webaudioapi_simple'
+version: 0.0.1
+description: >
+  A small sample of using Web Audio API with Dart.
+author: Seth Ladd <sethladd@gmail.com>
+homepage: https://github.com/sethladd/dart-webaudioapi-simple
+environment:
+  sdk: '>=1.9.0-dev'
+dependencies:
+  browser: any
